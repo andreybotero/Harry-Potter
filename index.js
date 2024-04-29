@@ -43,8 +43,8 @@ app.get("/bruxos/:id", async (req, res) => {
 
 // create bruxo
 
-let sangues = ["puro", "mestiço", "trouxa"];
-let casas = ["grifinória", "sonserina", "corvinal", "lufa-lufa"];
+let sangues = ["Puro", "Mestiço", "Trouxa"];
+let casas = ["Grifinória", "Sonserina", "Corvinal", "Lufa-Lufa"];
 
 app.post("/bruxos", async (req, res) => {
   const {
@@ -120,10 +120,18 @@ app.put("/bruxos/:id", async (req, res) => {
 app.delete("/bruxos/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const { rows } = await pool.query("DELETE FROM bruxos WHERE id = $1", [id]);
-    res.json(rows);
+    const { rowCount } = await pool.query("DELETE FROM bruxos WHERE id = $1", [
+      id,
+    ]);
+    if (rowCount === 0) {
+      res.status(404).json({ message: "Nenhum bruxo encontrado para deletar" });
+    } else {
+      res.json({ message: "Bruxo deletado com sucesso" });
+    }
   } catch (error) {
-    res.json({ error: error.message }, { message: "Erro ao deletar bruxo" });
+    res
+      .status(500)
+      .json({ error: "Erro ao deletar bruxo", message: error.message });
   }
 });
 
@@ -195,16 +203,24 @@ app.put("/varinhas/:id", async (req, res) => {
 app.delete("/varinhas/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const { rows } = await pool.query("DELETE FROM varinhas WHERE id = $1", [
-      id,
-    ]);
-    res.json(rows);
+    const { rowCount } = await pool.query(
+      "DELETE FROM varinhas WHERE id = $1",
+      [id]
+    );
+    if (rowCount === 0) {
+      res
+        .status(404)
+        .json({ message: "Nenhuma varinha encontrada para deletar" });
+    } else {
+      res.json({ message: "Varinha deletada com sucesso" });
+    }
   } catch (error) {
-    res.json({ error: error.message }, { message: "Erro ao deletar varinha" });
+    res
+      .status(500)
+      .json({ error: "Erro ao deletar varinha", message: error.message });
   }
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
